@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Shop – SportsKart{% endblock %}
+
+{% block content %}
+<div class="sk-hero">
+    <div class="container-fluid px-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="sk-hero-title">Your <span>Ultimate</span> Sports Store</div>
+                <p class="text-muted mb-0 mt-1">Premium gear for every athlete. {{ products|length }} products available.</p>
+            </div>
+            <div class="col-md-4 text-end d-none d-md-block">
+                <span style="font-size:5rem;opacity:0.15">🏆</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid px-4 py-4">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3">
+            <div class="sk-sidebar">
+                <h6>Categories</h6>
+                <a href="{{ url_for('home') }}" class="sk-cat-link {% if not cat %}active{% endif %}">
+                    <div class="sk-cat-icon"><i class="bi bi-grid"></i></div>
+                    All Sports
+                </a>
+                {% for c in categories %}
+                <a href="{{ url_for('home', cat=c.id) }}" class="sk-cat-link {% if cat == c.id|string %}active{% endif %}">
+                    <div class="sk-cat-icon"><i class="bi bi-{{ c.icon }}"></i></div>
+                    {{ c.name }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="col-lg-10 col-md-9">
+            {% if q %}
+            <div class="mb-3 d-flex align-items-center gap-2">
+                <span class="text-muted">Results for:</span>
+                <span class="badge" style="background:rgba(245,166,35,0.15);color:#f5a623;border:1px solid rgba(245,166,35,0.3);font-size:0.85rem">{{ q }}</span>
+                <a href="{{ url_for('home') }}" class="btn btn-sm btn-sk-outline py-0">Clear</a>
+            </div>
+            {% endif %}
+
+            {% if products %}
+            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                {% for p in products %}
+                <div class="col">
+                    <div class="sk-card h-100 d-flex flex-column">
+                        <a href="{{ url_for('product_detail', pid=p.id) }}" class="d-block">
+                            {% if p.image and p.image != 'default.jpg' %}
+                            <img src="{{ url_for('static', filename='images/products/' + p.image) }}" class="sk-card-img" alt="{{ p.name }}">
+                            {% else %}
+                            <div class="sk-img-placeholder">
+                                <i class="bi bi-trophy" style="font-size:3rem;color:#2a3a55"></i>
+                                <small style="font-size:0.7rem;margin-top:0.5rem;color:#4a5a75">{{ p.cat_name or 'Sports' }}</small>
+                            </div>
+                            {% endif %}
+                        </a>
+                        <div class="sk-card-body d-flex flex-column flex-grow-1">
+                            <div class="mb-1">
+                                {% if p.brand %}
+                                <span class="sk-brand-tag">{{ p.brand }}</span>
+                                {% endif %}
+                            </div>
+                            <a href="{{ url_for('product_detail', pid=p.id) }}" class="text-decoration-none">
+                                <div class="sk-card-title">{{ p.name }}</div>
+                            </a>
+                            <div class="sk-price mt-auto">₹{{ "%.0f"|format(p.price) }}</div>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted" style="font-size:0.75rem">
+                                    {% if p.stock > 0 %}
+                                    <span style="color:#22c55e"><i class="bi bi-check-circle"></i> In Stock</span>
+                                    {% else %}
+                                    <span style="color:#f87171"><i class="bi bi-x-circle"></i> Out of Stock</span>
+                                    {% endif %}
+                                </small>
+                                {% if p.stock > 0 %}
+                                <button class="btn btn-sm btn-sk-primary px-2 py-1" onclick="addToCart({{ p.id }})">
+                                    <i class="bi bi-cart-plus"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div style="font-size:4rem;opacity:0.3">🔍</div>
+                <h5 class="text-muted mt-3">No products found</h5>
+                <a href="{{ url_for('home') }}" class="btn btn-sk-primary mt-3">Browse All</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

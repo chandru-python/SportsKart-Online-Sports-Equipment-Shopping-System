@@ -1,0 +1,106 @@
+{% extends 'admin/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block page_sub %}Welcome back, {{ session.get('name') }}! Here's what's happening.{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="sk-stat-card" style="--accent-color:#f5a623">
+            <div class="sk-stat-icon">💰</div>
+            <div class="sk-stat-value text-accent">₹{{ "%.0f"|format(total_sales) }}</div>
+            <div class="sk-stat-label">Total Revenue</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="sk-stat-card" style="--accent-color:#60a5fa">
+            <div class="sk-stat-icon">📦</div>
+            <div class="sk-stat-value" style="color:#60a5fa">{{ total_orders }}</div>
+            <div class="sk-stat-label">Total Orders</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="sk-stat-card" style="--accent-color:#22c55e">
+            <div class="sk-stat-icon">🏆</div>
+            <div class="sk-stat-value" style="color:#22c55e">{{ total_products }}</div>
+            <div class="sk-stat-label">Products</div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="sk-stat-card" style="--accent-color:#a78bfa">
+            <div class="sk-stat-icon">👥</div>
+            <div class="sk-stat-value" style="color:#a78bfa">{{ total_customers }}</div>
+            <div class="sk-stat-label">Customers</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Recent Orders -->
+    <div class="col-lg-8">
+        <div class="sk-card p-0">
+            <div class="p-3 d-flex justify-content-between align-items-center" style="border-bottom:1px solid #2a3a55">
+                <h6 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;margin:0;font-size:1rem">Recent Orders</h6>
+                <a href="{{ url_for('admin_orders') }}" class="btn btn-sm btn-sk-outline py-1" style="font-size:0.8rem">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table mb-0" style="color:#e8eaf0">
+                    <thead>
+                        <tr style="background:rgba(245,166,35,0.05)">
+                            <th style="color:#f5a623;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:0.8rem;border:none;padding:10px 16px">ID</th>
+                            <th style="color:#f5a623;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:0.8rem;border:none;padding:10px 16px">CUSTOMER</th>
+                            <th style="color:#f5a623;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:0.8rem;border:none;padding:10px 16px">AMOUNT</th>
+                            <th style="color:#f5a623;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:0.8rem;border:none;padding:10px 16px">DATE</th>
+                            <th style="color:#f5a623;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;font-size:0.8rem;border:none;padding:10px 16px">STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for o in recent_orders %}
+                        <tr style="border-color:#2a3a55">
+                            <td style="padding:10px 16px;border-color:#2a3a55"><a href="{{ url_for('admin_view_bill', oid=o.id) }}" style="color:#f5a623;text-decoration:none">#{{ o.id }}</a></td>
+                            <td style="padding:10px 16px;border-color:#2a3a55">{{ o.customer }}</td>
+                            <td style="padding:10px 16px;border-color:#2a3a55;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#f5a623">₹{{ "%.0f"|format(o.total_amount) }}</td>
+                            <td style="padding:10px 16px;border-color:#2a3a55;color:#8892a4;font-size:0.85rem">{{ o.created_at[:10] }}</td>
+                            <td style="padding:10px 16px;border-color:#2a3a55"><span class="badge-{{ o.status }}">{{ o.status.title() }}</span></td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-muted py-4">No orders yet</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Products + Quick Actions -->
+    <div class="col-lg-4">
+        <div class="sk-card p-3 mb-4">
+            <h6 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;margin-bottom:1rem;font-size:1rem">Top Selling Products</h6>
+            {% for p in top_products %}
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div style="font-size:0.85rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</div>
+                <span class="ms-2" style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#f5a623;flex-shrink:0">{{ p.sold }} sold</span>
+            </div>
+            {% else %}
+            <p class="text-muted small">No sales data yet</p>
+            {% endfor %}
+        </div>
+
+        <div class="sk-card p-3">
+            <h6 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;margin-bottom:1rem;font-size:1rem">Quick Actions</h6>
+            <div class="d-grid gap-2">
+                <a href="{{ url_for('admin_add_product') }}" class="btn btn-sk-primary btn-sm">
+                    <i class="bi bi-plus-circle me-2"></i>Add Product
+                </a>
+                <a href="{{ url_for('admin_categories') }}" class="btn btn-sk-outline btn-sm">
+                    <i class="bi bi-tags me-2"></i>Manage Categories
+                </a>
+                <a href="{{ url_for('admin_orders') }}" class="btn btn-sk-outline btn-sm">
+                    <i class="bi bi-receipt me-2"></i>View Orders
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

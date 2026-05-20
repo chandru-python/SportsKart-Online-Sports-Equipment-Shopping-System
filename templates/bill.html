@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ order.id }} – SportsKart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: #0a0f1e; font-family: 'Inter', sans-serif; padding: 2rem; }
+        .sk-bill { background: white; color: #1a1a2e; max-width: 700px; margin: 0 auto; border-radius: 12px; padding: 2.5rem; }
+        .logo { font-family: 'Barlow Condensed', sans-serif; font-size: 2rem; font-weight: 800; color: #f5a623; }
+        .logo span { color: #e8382d; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1a1a2e; color: white; padding: 10px 12px; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 1px; font-size: 0.8rem; }
+        td { padding: 10px 12px; border-bottom: 1px solid #eee; }
+        .total-row { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 1.2rem; }
+        .badge-confirmed { background: #dcfce7; color: #16a34a; border-radius: 6px; padding: 3px 12px; font-size: 0.8rem; }
+        @media print {
+            body { background: white; padding: 0; }
+            .no-print { display: none !important; }
+            .sk-bill { box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+<div class="no-print text-center mb-3 d-flex gap-2 justify-content-center">
+    <button onclick="window.print()" class="btn btn-warning">
+        <i class="bi bi-printer me-2"></i>Print / Save PDF
+    </button>
+    <a href="javascript:history.back()" class="btn btn-outline-secondary text-white">← Back</a>
+</div>
+
+<div class="sk-bill">
+    <div class="d-flex justify-content-between align-items-start mb-4" style="border-bottom:2px solid #1a1a2e;padding-bottom:1.5rem">
+        <div>
+            <div class="logo"><span>⚡</span> SportsKart</div>
+            <div style="font-size:0.8rem;color:#666;margin-top:0.3rem">Gear Up. Play Hard.</div>
+            <div style="font-size:0.8rem;color:#666">support@sportskart.com | +91 98765 00000</div>
+        </div>
+        <div class="text-end">
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800">INVOICE</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#f5a623">#{{ order.id }}</div>
+            <div style="font-size:0.85rem;color:#666">{{ order.created_at[:10] }}</div>
+            <div class="mt-1"><span class="badge-confirmed">{{ order.status.title() }}</span></div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-6">
+            <div style="font-size:0.75rem;color:#999;letter-spacing:1px;margin-bottom:0.5rem">BILL TO</div>
+            <div style="font-weight:700;font-size:1.1rem">{{ user.name }}</div>
+            <div style="color:#555;font-size:0.85rem">{{ user.email }}</div>
+            {% if user.phone %}<div style="color:#555;font-size:0.85rem">{{ user.phone }}</div>{% endif %}
+            {% if order.shipping_address %}
+            <div style="color:#555;font-size:0.85rem;margin-top:0.3rem">{{ order.shipping_address }}</div>
+            {% endif %}
+        </div>
+        <div class="col-6 text-end">
+            <div style="font-size:0.75rem;color:#999;letter-spacing:1px;margin-bottom:0.5rem">PAYMENT METHOD</div>
+            <div style="font-weight:700;text-transform:uppercase">{{ order.payment_method }}</div>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th class="text-end">Unit Price</th>
+                <th class="text-center">Qty</th>
+                <th class="text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for i, item in enumerate(items) %}
+            <tr>
+                <td style="color:#999">{{ i+1 }}</td>
+                <td><strong>{{ item.name }}</strong></td>
+                <td class="text-end">₹{{ "%.2f"|format(item.price) }}</td>
+                <td class="text-center">{{ item.quantity }}</td>
+                <td class="text-end" style="font-weight:600">₹{{ "%.2f"|format(item.price * item.quantity) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="4" class="text-end" style="border-top:2px solid #1a1a2e;padding-top:12px">Subtotal</td>
+                <td class="text-end" style="border-top:2px solid #1a1a2e;padding-top:12px">₹{{ "%.2f"|format(order.total_amount) }}</td>
+            </tr>
+            <tr>
+                <td colspan="4" class="text-end text-muted" style="font-size:0.9rem">Shipping</td>
+                <td class="text-end" style="color:#16a34a;font-weight:600">FREE</td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="4" class="text-end" style="border-top:2px solid #1a1a2e;padding-top:12px;font-size:1.1rem">GRAND TOTAL</td>
+                <td class="text-end" style="border-top:2px solid #1a1a2e;padding-top:12px;color:#f5a623;font-size:1.4rem">₹{{ "%.2f"|format(order.total_amount) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid #eee;text-align:center;color:#999;font-size:0.8rem">
+        <p>Thank you for shopping at SportsKart! 🏆</p>
+        <p>For queries: support@sportskart.com | Returns within 7 days of delivery</p>
+    </div>
+</div>
+
+<script>
+// Make enumerate work in template - handled via Python enumerate
+</script>
+</body>
+</html>

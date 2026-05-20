@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Order Placed – SportsKart{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <div style="width:100px;height:100px;background:rgba(34,197,94,0.1);border:2px solid #22c55e;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 2rem">
+        <i class="bi bi-check-lg" style="font-size:3rem;color:#22c55e"></i>
+    </div>
+    <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.5rem;font-weight:800">Order Confirmed!</h1>
+    <p class="text-muted">Order #{{ order.id }} has been placed successfully.</p>
+
+    <div class="sk-card p-4 mx-auto mt-4 mb-4" style="max-width:500px;text-align:left">
+        <div class="row g-2">
+            <div class="col-6">
+                <div style="font-size:0.75rem;color:#8892a4">ORDER ID</div>
+                <div style="font-weight:700">#{{ order.id }}</div>
+            </div>
+            <div class="col-6">
+                <div style="font-size:0.75rem;color:#8892a4">PAYMENT</div>
+                <div style="font-weight:700;text-transform:uppercase">{{ order.payment_method }}</div>
+            </div>
+            <div class="col-6">
+                <div style="font-size:0.75rem;color:#8892a4">TOTAL</div>
+                <div class="sk-price" style="font-size:1.3rem">₹{{ "%.0f"|format(order.total_amount) }}</div>
+            </div>
+            <div class="col-6">
+                <div style="font-size:0.75rem;color:#8892a4">STATUS</div>
+                <span class="badge-confirmed">Confirmed</span>
+            </div>
+        </div>
+        <hr style="border-color:#2a3a55;margin:1rem 0">
+        <div style="font-size:0.75rem;color:#8892a4;margin-bottom:0.5rem">ITEMS</div>
+        {% for item in items %}
+        <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.9rem">{{ item.name }} × {{ item.quantity }}</span>
+            <span style="color:#f5a623;font-weight:600">₹{{ "%.0f"|format(item.price * item.quantity) }}</span>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="d-flex gap-3 justify-content-center">
+        <a href="{{ url_for('view_bill', order_id=order.id) }}" class="btn btn-sk-outline">
+            <i class="bi bi-file-text me-2"></i>View Bill
+        </a>
+        <a href="{{ url_for('my_orders') }}" class="btn btn-sk-outline">
+            <i class="bi bi-bag-check me-2"></i>My Orders
+        </a>
+        <a href="{{ url_for('home') }}" class="btn btn-sk-primary">
+            <i class="bi bi-shop me-2"></i>Continue Shopping
+        </a>
+    </div>
+</div>
+{% endblock %}

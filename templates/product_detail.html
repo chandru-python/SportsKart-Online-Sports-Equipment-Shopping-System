@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}{{ product.name }} – SportsKart{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb" style="background:transparent;padding:0">
+            <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-accent text-decoration-none">Home</a></li>
+            <li class="breadcrumb-item text-muted">{{ product.cat_name or 'Sports' }}</li>
+            <li class="breadcrumb-item active text-muted">{{ product.name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-md-5">
+            <div class="sk-card">
+                {% if product.image and product.image != 'default.jpg' %}
+                <img src="{{ url_for('static', filename='images/products/' + product.image) }}" class="w-100" style="border-radius:12px;max-height:400px;object-fit:cover" alt="{{ product.name }}">
+                {% else %}
+                <div class="sk-img-placeholder" style="height:350px;border-radius:12px">
+                    <i class="bi bi-trophy" style="font-size:5rem;color:#2a3a55"></i>
+                    <div style="color:#4a5a75;margin-top:1rem;font-family:'Barlow Condensed',sans-serif;font-size:1.2rem">{{ product.cat_name or 'Sports Gear' }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-7">
+            <div class="mb-2">
+                {% if product.brand %}
+                <span class="sk-brand-tag" style="font-size:0.85rem;padding:3px 10px">{{ product.brand }}</span>
+                {% endif %}
+                {% if product.cat_name %}
+                <span class="ms-2" style="font-size:0.8rem;color:#8892a4">{{ product.cat_name }}</span>
+                {% endif %}
+            </div>
+            <h1 style="font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:800">{{ product.name }}</h1>
+            <div class="sk-price" style="font-size:2.5rem">₹{{ "%.0f"|format(product.price) }}</div>
+            <p class="text-muted mt-3">{{ product.description or 'High-quality sports equipment for athletes at every level.' }}</p>
+
+            <div class="d-flex gap-3 mt-3 mb-4">
+                <div class="text-center p-3 rounded" style="background:rgba(255,255,255,0.05);border:1px solid #2a3a55;flex:1">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;color:{% if product.stock > 5 %}#22c55e{% elif product.stock > 0 %}#f5a623{% else %}#f87171{% endif %}">{{ product.stock }}</div>
+                    <div style="font-size:0.75rem;color:#8892a4">IN STOCK</div>
+                </div>
+                <div class="text-center p-3 rounded" style="background:rgba(255,255,255,0.05);border:1px solid #2a3a55;flex:1">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;color:#60a5fa">🚚</div>
+                    <div style="font-size:0.75rem;color:#8892a4">FREE DELIVERY</div>
+                </div>
+                <div class="text-center p-3 rounded" style="background:rgba(255,255,255,0.05);border:1px solid #2a3a55;flex:1">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-size:1.4rem;font-weight:800;color:#a78bfa">↩</div>
+                    <div style="font-size:0.75rem;color:#8892a4">7-DAY RETURN</div>
+                </div>
+            </div>
+
+            {% if product.stock > 0 %}
+            <div class="d-flex gap-3 align-items-center">
+                <div class="sk-qty-control">
+                    <button class="sk-qty-btn" id="qtyMinus"><i class="bi bi-dash"></i></button>
+                    <input type="number" id="qtyInput" value="1" min="1" max="{{ product.stock }}" class="form-control text-center sk-form-control" style="width:60px">
+                    <button class="sk-qty-btn" id="qtyPlus"><i class="bi bi-plus"></i></button>
+                </div>
+                <button class="btn btn-sk-primary flex-grow-1 py-2" style="font-size:1rem" onclick="addToCart({{ product.id }}, parseInt(document.getElementById('qtyInput').value))">
+                    <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                </button>
+            </div>
+            <a href="{{ url_for('cart') }}" class="btn btn-sk-outline w-100 mt-2">
+                <i class="bi bi-bag me-2"></i>Go to Cart
+            </a>
+            {% else %}
+            <button class="btn btn-secondary w-100 py-2" disabled>Out of Stock</button>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if related %}
+    <div class="mt-5">
+        <h3 class="sk-section-header">Related Products</h3>
+        <div class="row row-cols-2 row-cols-md-4 g-3">
+            {% for p in related %}
+            <div class="col">
+                <div class="sk-card h-100">
+                    <a href="{{ url_for('product_detail', pid=p.id) }}" class="d-block">
+                        <div class="sk-img-placeholder" style="height:150px">
+                            <i class="bi bi-trophy" style="font-size:2rem;color:#2a3a55"></i>
+                        </div>
+                    </a>
+                    <div class="sk-card-body">
+                        <div class="sk-card-title">{{ p.name }}</div>
+                        <div class="sk-price" style="font-size:1.2rem">₹{{ "%.0f"|format(p.price) }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

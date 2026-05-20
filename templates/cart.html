@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% block title %}Cart – SportsKart{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <h2 class="sk-section-header">Shopping Cart</h2>
+
+    {% if items %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% for item in items %}
+            <div class="sk-cart-item">
+                {% if item.image and item.image != 'default.jpg' %}
+                <img src="{{ url_for('static', filename='images/products/' + item.image) }}" class="sk-cart-img" alt="{{ item.name }}">
+                {% else %}
+                <div class="sk-cart-img d-flex align-items-center justify-content-center">
+                    <i class="bi bi-trophy" style="font-size:2rem;color:#4a5a75"></i>
+                </div>
+                {% endif %}
+                <div class="flex-grow-1">
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem">{{ item.name }}</div>
+                    <div class="sk-price" style="font-size:1.2rem">₹{{ "%.0f"|format(item.price) }}</div>
+                </div>
+                <div class="d-flex flex-column align-items-end gap-2">
+                    <form method="POST" action="{{ url_for('update_cart', cart_id=item.id) }}" class="d-flex align-items-center gap-2">
+                        <div class="sk-qty-control">
+                            <button type="submit" name="quantity" value="{{ item.quantity - 1 }}" class="sk-qty-btn"><i class="bi bi-dash"></i></button>
+                            <span style="width:30px;text-align:center;font-weight:700">{{ item.quantity }}</span>
+                            <button type="submit" name="quantity" value="{{ item.quantity + 1 }}" class="sk-qty-btn" {% if item.quantity >= item.stock %}disabled{% endif %}><i class="bi bi-plus"></i></button>
+                        </div>
+                    </form>
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#f5a623">₹{{ "%.0f"|format(item.price * item.quantity) }}</div>
+                    <a href="{{ url_for('remove_from_cart', cart_id=item.id) }}" class="btn btn-sm" style="color:#f87171;font-size:0.8rem;padding:2px 8px;border:1px solid rgba(248,113,113,0.3);border-radius:6px">
+                        <i class="bi bi-trash me-1"></i>Remove
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-4">
+            <div class="sk-order-summary">
+                <h5 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;margin-bottom:1.5rem">Order Summary</h5>
+                {% for item in items %}
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-muted">{{ item.name }} × {{ item.quantity }}</span>
+                    <span>₹{{ "%.0f"|format(item.price * item.quantity) }}</span>
+                </div>
+                {% endfor %}
+                <hr style="border-color:#2a3a55">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Subtotal</span>
+                    <span>₹{{ "%.0f"|format(total) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Shipping</span>
+                    <span style="color:#22c55e">FREE</span>
+                </div>
+                <hr style="border-color:#2a3a55">
+                <div class="d-flex justify-content-between mb-3">
+                    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem">Total</span>
+                    <span class="sk-price" style="font-size:1.4rem">₹{{ "%.0f"|format(total) }}</span>
+                </div>
+                <a href="{{ url_for('checkout') }}" class="btn btn-sk-primary w-100 py-2" style="font-size:1rem">
+                    <i class="bi bi-credit-card me-2"></i>Proceed to Checkout
+                </a>
+                <a href="{{ url_for('home') }}" class="btn btn-sk-outline w-100 mt-2">
+                    <i class="bi bi-arrow-left me-2"></i>Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div style="font-size:5rem;opacity:0.2">🛒</div>
+        <h4 class="text-muted mt-3">Your cart is empty</h4>
+        <a href="{{ url_for('home') }}" class="btn btn-sk-primary mt-3">Shop Now</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

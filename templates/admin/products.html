@@ -1,0 +1,73 @@
+{% extends 'admin/base.html' %}
+{% block title %}Products{% endblock %}
+{% block page_title %}Products{% endblock %}
+{% block page_sub %}Manage your product catalogue{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <form class="d-flex" method="GET">
+        <div class="input-group" style="width:300px">
+            <input type="text" name="q" class="form-control sk-form-control" placeholder="Search products..." value="{{ q }}">
+            <button class="btn btn-warning" type="submit"><i class="bi bi-search"></i></button>
+        </div>
+    </form>
+    <a href="{{ url_for('admin_add_product') }}" class="btn btn-sk-primary">
+        <i class="bi bi-plus-circle me-2"></i>Add Product
+    </a>
+</div>
+
+<div class="sk-table">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product</th>
+                <th>Brand</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in products %}
+            <tr>
+                <td>
+                    {% if p.image and p.image != 'default.jpg' %}
+                    <img src="{{ url_for('static', filename='images/products/' + p.image) }}" style="width:48px;height:48px;object-fit:cover;border-radius:8px">
+                    {% else %}
+                    <div style="width:48px;height:48px;background:#1a2235;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#4a5a75">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    {% endif %}
+                </td>
+                <td><strong>{{ p.name }}</strong></td>
+                <td style="color:#8892a4;font-size:0.85rem">{{ p.brand or '—' }}</td>
+                <td>
+                    {% if p.cat_name %}
+                    <span style="background:rgba(245,166,35,0.1);color:#f5a623;border:1px solid rgba(245,166,35,0.2);border-radius:6px;padding:2px 8px;font-size:0.75rem">{{ p.cat_name }}</span>
+                    {% else %}—{% endif %}
+                </td>
+                <td style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#f5a623;font-size:1.1rem">₹{{ "%.0f"|format(p.price) }}</td>
+                <td>
+                    <span style="color:{% if p.stock > 10 %}#22c55e{% elif p.stock > 0 %}#f5a623{% else %}#f87171{% endif %};font-weight:600">{{ p.stock }}</span>
+                </td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('admin_edit_product', pid=p.id) }}" class="btn btn-sm btn-sk-outline py-1">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <a href="{{ url_for('admin_delete_product', pid=p.id) }}" class="btn btn-sm btn-sk-danger py-1"
+                           onclick="return confirm('Delete {{ p.name }}?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" class="text-center text-muted py-4">No products found</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

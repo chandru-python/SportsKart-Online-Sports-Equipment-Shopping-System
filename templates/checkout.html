@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Checkout – SportsKart{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <h2 class="sk-section-header">Checkout</h2>
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <form method="POST">
+                <div class="sk-card p-4 mb-4">
+                    <h5 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#f5a623;margin-bottom:1.2rem">
+                        <i class="bi bi-geo-alt me-2"></i>Shipping Address
+                    </h5>
+                    <div class="mb-3">
+                        <label class="sk-label">Deliver to</label>
+                        <textarea name="address" class="form-control sk-form-control" rows="3" required>{{ user.address or '' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="sk-card p-4 mb-4">
+                    <h5 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#f5a623;margin-bottom:1.2rem">
+                        <i class="bi bi-credit-card me-2"></i>Payment Method
+                    </h5>
+                    <div class="row g-2">
+                        {% for val, label, icon in [('cod','Cash on Delivery','cash-coin'),('upi','UPI Payment','qr-code'),('card','Credit / Debit Card','credit-card-2-front'),('netbanking','Net Banking','bank')] %}
+                        <div class="col-6">
+                            <label class="w-100" style="cursor:pointer">
+                                <input type="radio" name="payment" value="{{ val }}" class="d-none" {% if val=='cod' %}checked{% endif %}>
+                                <div class="p-3 rounded text-center sk-payment-opt" style="border:1px solid #2a3a55;transition:all 0.15s;background:rgba(255,255,255,0.03)">
+                                    <i class="bi bi-{{ icon }} d-block mb-1" style="font-size:1.4rem"></i>
+                                    <span style="font-size:0.8rem">{{ label }}</span>
+                                </div>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-sk-primary w-100 py-3" style="font-size:1.1rem">
+                    <i class="bi bi-bag-check me-2"></i>Place Order
+                </button>
+            </form>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="sk-order-summary">
+                <h5 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;margin-bottom:1.5rem">
+                    Order Items ({{ items|length }})
+                </h5>
+                {% for item in items %}
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div style="width:48px;height:48px;background:#1a2235;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                        {% if item.image and item.image != 'default.jpg' %}
+                        <img src="{{ url_for('static', filename='images/products/' + item.image) }}" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+                        {% else %}
+                        <i class="bi bi-trophy" style="color:#4a5a75"></i>
+                        {% endif %}
+                    </div>
+                    <div class="flex-grow-1">
+                        <div style="font-size:0.9rem;font-weight:600">{{ item.name }}</div>
+                        <div style="font-size:0.8rem;color:#8892a4">Qty: {{ item.quantity }}</div>
+                    </div>
+                    <div style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#f5a623">
+                        ₹{{ "%.0f"|format(item.price * item.quantity) }}
+                    </div>
+                </div>
+                {% endfor %}
+                <hr style="border-color:#2a3a55">
+                <div class="d-flex justify-content-between mb-1">
+                    <span class="text-muted">Subtotal</span><span>₹{{ "%.0f"|format(total) }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="text-muted">Shipping</span><span style="color:#22c55e">FREE</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.1rem">Grand Total</span>
+                    <span class="sk-price" style="font-size:1.6rem">₹{{ "%.0f"|format(total) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+input[type=radio]:checked + .sk-payment-opt {
+    border-color: #f5a623 !important;
+    background: rgba(245,166,35,0.08) !important;
+    color: #f5a623;
+}
+</style>
+<script>
+document.querySelectorAll('input[name="payment"]').forEach(r => {
+    r.addEventListener('change', () => {
+        document.querySelectorAll('.sk-payment-opt').forEach(el => {
+            el.style.borderColor = '#2a3a55';
+            el.style.background = 'rgba(255,255,255,0.03)';
+            el.style.color = '';
+        });
+        const selected = r.nextElementSibling;
+        if (r.checked) {
+            selected.style.borderColor = '#f5a623';
+            selected.style.background = 'rgba(245,166,35,0.08)';
+            selected.style.color = '#f5a623';
+        }
+    });
+});
+// Trigger initial styling
+document.querySelector('input[name="payment"]:checked')?.dispatchEvent(new Event('change'));
+</script>
+{% endblock %}

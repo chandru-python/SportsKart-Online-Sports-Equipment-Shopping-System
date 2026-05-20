@@ -1,0 +1,72 @@
+{% extends 'admin/base.html' %}
+{% block title %}Categories{% endblock %}
+{% block page_title %}Categories{% endblock %}
+{% block page_sub %}Manage product categories{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="sk-card p-4">
+            <h5 style="font-family:'Barlow Condensed',sans-serif;font-weight:700;margin-bottom:1.2rem">Add Category</h5>
+            <form method="POST" action="{{ url_for('admin_add_category') }}">
+                <div class="mb-3">
+                    <label class="sk-label">Category Name *</label>
+                    <input type="text" name="name" class="form-control sk-form-control" placeholder="e.g. Cricket" required>
+                </div>
+                <div class="mb-3">
+                    <label class="sk-label">Description</label>
+                    <textarea name="description" class="form-control sk-form-control" rows="2" placeholder="Short description..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="sk-label">Bootstrap Icon (without bi-)</label>
+                    <input type="text" name="icon" class="form-control sk-form-control" placeholder="e.g. trophy, star, heart" value="trophy">
+                    <small class="text-muted">See <a href="https://icons.getbootstrap.com" target="_blank" style="color:#f5a623">icons.getbootstrap.com</a></small>
+                </div>
+                <button type="submit" class="btn btn-sk-primary w-100">
+                    <i class="bi bi-plus-circle me-2"></i>Add Category
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="sk-table">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Icon</th>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Products</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in categories %}
+                    <tr>
+                        <td>
+                            <div style="width:36px;height:36px;background:rgba(245,166,35,0.1);border:1px solid rgba(245,166,35,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#f5a623">
+                                <i class="bi bi-{{ c.icon }}"></i>
+                            </div>
+                        </td>
+                        <td><strong>{{ c.name }}</strong></td>
+                        <td style="color:#8892a4;font-size:0.85rem;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.description or '—' }}</td>
+                        <td>
+                            <span style="font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#60a5fa">{{ c.product_count }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin_delete_category', cid=c.id) }}" class="btn btn-sm btn-sk-danger py-1"
+                               onclick="return confirm('Delete {{ c.name }}? Products in this category will be unlinked.')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="5" class="text-center text-muted py-4">No categories yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
